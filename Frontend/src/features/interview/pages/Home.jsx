@@ -135,17 +135,20 @@ const Home = () => {
     }
 
     // Form submission
-    const handleGenerateReport = async () => {
+    const handleGenerateReport = async (e) => {
+        e.preventDefault()
         if (isSubmitting) return
 
-        if (!jobDescription.trim()) {
-            setErrorMsg('Target Job Description is required.')
-            textareaRef.current?.focus()
-            return
-        }
+        const missingFields = []
+        if (!jobDescription.trim()) missingFields.push('Job Description')
+        if (!selectedFile) missingFields.push('Resume')
+        if (!selfDescription.trim()) missingFields.push('Self-Description')
 
-        if (!selectedFile && !selfDescription.trim()) {
-            setErrorMsg('Either an attached Resume or a detailed Self Description is required.')
+        if (missingFields.length > 0) {
+            setErrorMsg(`Please complete all required fields: ${missingFields.join(', ')}.`)
+            if (!jobDescription.trim()) {
+                textareaRef.current?.focus()
+            }
             return
         }
 
@@ -254,9 +257,9 @@ const Home = () => {
                 </div>
 
                 <div className='home-navbar__right' ref={userMenuRef}>
-                    <div className='home-navbar__toggle-indicator'>
+                    {/* <div className='home-navbar__toggle-indicator'>
                         <div className='toggle-dot' />
-                    </div>
+                    </div> */}
 
                     <button
                         className='home-navbar__avatar-btn'
@@ -307,7 +310,7 @@ const Home = () => {
                 </section>
 
                 {/* Main Card */}
-                <div className='interview-card'>
+                <form className='interview-card' onSubmit={handleGenerateReport}>
                     <div className='interview-card__columns'>
 
                         {/* Left Column: Target Job Description */}
@@ -382,6 +385,7 @@ const Home = () => {
                                 <div className='profile-section__subbar'>
                                     <span className='section-name'>Upload Resume</span>
                                     <span className='section-hint'>PDF or DOCX (Max 5MB)</span>
+                                    <span className='badge-required'>Required</span>
                                 </div>
 
                                 <div
@@ -437,23 +441,23 @@ const Home = () => {
                                 )}
                             </div>
 
-                            {/* OR Quick Describe Divider */}
+                            {/* Quick Description Divider */}
                             <div className='or-divider'>
-                                <span>OR QUICK DESCRIBE</span>
+                                <span>AND QUICK DESCRIPTION</span>
                             </div>
 
                             {/* Quick Self-Description Section */}
                             <div className='profile-section'>
                                 <div className='profile-section__subbar'>
                                     <span className='section-name'>Quick Self-Description</span>
-                                    <span className='section-hint'>Manual Overview</span>
+                                    <span className='badge-required'>Required</span>
                                 </div>
                                 <div className='self-desc-container'>
                                     <textarea
                                         value={selfDescription}
                                         onChange={(e) => setSelfDescription(e.target.value)}
                                         className='self-desc-textarea'
-                                        placeholder="Briefly describe your experience, key skills, and current scope if you don't have a resume handy (e.g. 7 years React/Node.js, led billing platform redesign)..."
+                                        placeholder="Briefly describe your experience, key skills, and current scope (e.g. 7 years React/Node.js, led billing platform redesign)..."
                                     />
                                 </div>
                             </div>
@@ -468,7 +472,7 @@ const Home = () => {
                                     </svg>
                                 </span>
                                 <p>
-                                    <strong>Requirement:</strong> Either an attached <strong>Resume</strong> or a detailed <strong>Self Description</strong> is required to produce tailored rubric diagnostics.
+                                    <strong>Requirement:</strong> Provide a <strong>Job Description</strong>, upload your <strong>Resume</strong>, and enter a detailed <strong>Self-Description</strong> for personalized feedback and suggestions.
                                 </p>
                             </div>
 
@@ -477,7 +481,7 @@ const Home = () => {
 
                     {/* Error Banner */}
                     {errorMsg && (
-                        <div className='form-error-banner'>
+                        <div className='form-error-banner' role='alert'>
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <circle cx="12" cy="12" r="10" />
                                 <line x1="12" y1="8" x2="12" y2="12" />
@@ -487,39 +491,19 @@ const Home = () => {
                         </div>
                     )}
 
-                    {/* Bottom Row inside Main Card */}
                     <div className='card-bottom-row'>
-                        <div className='pagination-dots'>
-                            <span className='dot dot--active' />
-                            <span className='dot' />
-                        </div>
-
-                        <button
-                            type='button'
-                            className='generate-btn'
-                            onClick={handleGenerateReport}
-                            disabled={isSubmitting}
-                        >
+                        <button className='generate-btn' type='submit' disabled={isSubmitting}>
                             {isSubmitting ? (
                                 <>
                                     <span className='btn-spinner' />
-                                    <span>Generating Strategy...</span>
+                                    Generating...
                                 </>
                             ) : (
-                                <>
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                        <path d="M12 2l2.4 7.2L21.6 12l-7.2 2.8L12 22l-2.4-7.2L2.4 12l7.2-2.8z" />
-                                    </svg>
-                                    <span>Generate My Interview Strategy</span>
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                        <line x1="5" y1="12" x2="19" y2="12" />
-                                        <polyline points="12 5 19 12 12 19" />
-                                    </svg>
-                                </>
+                                'Generate Interview Plan'
                             )}
                         </button>
                     </div>
-                </div>
+                </form>
 
                 {/* Recent Interview Plans Section */}
                 <section className='recent-plans-section'>
@@ -618,7 +602,7 @@ const Home = () => {
             {/* Page Footer */}
             <footer className='home-footer'>
                 <p className='home-footer__copyright'>
-                    &copy; 2024 InterviewAI TargetPrep Suite. Precision Gap Diagnostics.
+                    &copy; InterviewAI TargetPrep Smart Interview Preparation & Skill Gap Analysis.
                 </p>
                 <div className='home-footer__links'>
                     <a href='#'>Session</a>
